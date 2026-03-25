@@ -10,49 +10,79 @@ function Register() {
     email: "",
     password: "",
     department: "",
+    role: "EMPLOYEE",
   });
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setLoading(true);
 
     try {
-      const response = await API.post("/auth/register", formData);
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        department: formData.department.trim(),
+        role: formData.role,
+      };
 
-      if (response.data.token) {
+      console.log("Register payload:", payload);
+
+      const response = await API.post("/auth/register", payload);
+
+      if (response.data?.token) {
         localStorage.setItem("token", response.data.token);
       }
 
-      if (response.data.role) {
+      if (response.data?.role) {
         localStorage.setItem("role", response.data.role);
       }
 
-      setMessage(response.data.message || "User registered successfully");
+      setMessage(response.data?.message || "User registered successfully");
 
       setFormData({
         name: "",
         email: "",
         password: "",
         department: "",
+        role: "EMPLOYEE",
       });
 
       setTimeout(() => {
         navigate("/");
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
-      console.error(err);
+      console.error("Registration error:", err);
+      console.error("Backend response:", err.response?.data);
+
+      const backendMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.response?.data ||
+        "Registration failed";
+
+      setError(
+        typeof backendMessage === "string"
+          ? backendMessage
+          : "Registration failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,11 +134,22 @@ function Register() {
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="EMPLOYEE">EMPLOYEE</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-blue-400"
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
@@ -116,9 +157,7 @@ function Register() {
           <p className="mt-4 text-center text-green-600">{message}</p>
         )}
 
-        {error && (
-          <p className="mt-4 text-center text-red-600">{error}</p>
-        )}
+        {error && <p className="mt-4 text-center text-red-600">{error}</p>}
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Already have an account?{" "}
