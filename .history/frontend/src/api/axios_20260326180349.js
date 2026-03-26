@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // ✅ from ENV
+  baseURL: "https://assetflow-management-system-1.onrender.com", // 🔥 CHANGE THIS
 });
 
-// Attach JWT token automatically
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -16,15 +15,6 @@ API.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
-);
-
-// Optional: handle global errors
-API.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Error:", error.response?.data || error.message);
-    return Promise.reject(error);
-  }
 );
 
 export default API;
