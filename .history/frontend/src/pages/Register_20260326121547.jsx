@@ -5,20 +5,11 @@ import API from "../api/axios";
 function Register() {
   const navigate = useNavigate();
 
-  const departments = [
-    "IT",
-    "Management",
-    "HR",
-    "Accounts",
-    "Store",
-    "Operations",
-  ];
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    department: "IT",
+    department: "",
     role: "EMPLOYEE",
   });
 
@@ -28,6 +19,7 @@ function Register() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -45,10 +37,11 @@ function Register() {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
-        department: formData.department,
+        department: formData.department.trim(),
         role: formData.role,
       };
 
+      console.log("FORM DATA BEFORE SEND:", formData);
       console.log("REGISTER PAYLOAD:", payload);
 
       const response = await API.post("/auth/register", payload);
@@ -67,7 +60,7 @@ function Register() {
         name: "",
         email: "",
         password: "",
-        department: "IT",
+        department: "",
         role: "EMPLOYEE",
       });
 
@@ -96,58 +89,56 @@ function Register() {
           Register
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="name"
+            autoComplete="name"
             placeholder="Enter full name"
             value={formData.name}
             onChange={handleChange}
             required
-            autoComplete="off"
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <input
             type="email"
             name="email"
+            autoComplete="email"
             placeholder="Enter email"
             value={formData.email}
             onChange={handleChange}
             required
-            autoComplete="off"
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <input
             type="password"
             name="password"
+            autoComplete="new-password"
             placeholder="Enter password"
             value={formData.password}
             onChange={handleChange}
             required
-            autoComplete="new-password"
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <select
+          <input
+            type="text"
             name="department"
+            autoComplete="off"
+            placeholder="Enter department"
             value={formData.department}
             onChange={handleChange}
-            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
-              </option>
-            ))}
-          </select>
+            required
+            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
           <select
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="EMPLOYEE">EMPLOYEE</option>
             <option value="ADMIN">ADMIN</option>

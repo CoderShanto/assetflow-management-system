@@ -5,20 +5,11 @@ import API from "../api/axios";
 function Register() {
   const navigate = useNavigate();
 
-  const departments = [
-    "IT",
-    "Management",
-    "HR",
-    "Accounts",
-    "Store",
-    "Operations",
-  ];
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    department: "IT",
+    department: "",
     role: "EMPLOYEE",
   });
 
@@ -28,6 +19,7 @@ function Register() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -43,13 +35,13 @@ function Register() {
     try {
       const payload = {
         name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
+        email: formData.email.trim(),
         password: formData.password,
-        department: formData.department,
+        department: formData.department.trim(),
         role: formData.role,
       };
 
-      console.log("REGISTER PAYLOAD:", payload);
+      console.log("Register payload:", payload);
 
       const response = await API.post("/auth/register", payload);
 
@@ -67,13 +59,13 @@ function Register() {
         name: "",
         email: "",
         password: "",
-        department: "IT",
+        department: "",
         role: "EMPLOYEE",
       });
 
       setTimeout(() => {
         navigate("/");
-      }, 1200);
+      }, 1500);
     } catch (err) {
       console.error("Registration error:", err);
       console.error("Backend response:", err.response?.data);
@@ -81,9 +73,14 @@ function Register() {
       const backendMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
+        err.response?.data ||
         "Registration failed";
 
-      setError(backendMessage);
+      setError(
+        typeof backendMessage === "string"
+          ? backendMessage
+          : "Registration failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -96,7 +93,7 @@ function Register() {
           Register
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="name"
@@ -104,7 +101,6 @@ function Register() {
             value={formData.name}
             onChange={handleChange}
             required
-            autoComplete="off"
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
@@ -115,7 +111,6 @@ function Register() {
             value={formData.email}
             onChange={handleChange}
             required
-            autoComplete="off"
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
@@ -126,28 +121,24 @@ function Register() {
             value={formData.password}
             onChange={handleChange}
             required
-            autoComplete="new-password"
             className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <select
+          <input
+            type="text"
             name="department"
+            placeholder="Enter department"
             value={formData.department}
             onChange={handleChange}
-            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
-              </option>
-            ))}
-          </select>
+            required
+            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
           <select
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="EMPLOYEE">EMPLOYEE</option>
             <option value="ADMIN">ADMIN</option>
@@ -166,9 +157,7 @@ function Register() {
           <p className="mt-4 text-center text-green-600">{message}</p>
         )}
 
-        {error && (
-          <p className="mt-4 text-center text-red-600">{error}</p>
-        )}
+        {error && <p className="mt-4 text-center text-red-600">{error}</p>}
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Already have an account?{" "}

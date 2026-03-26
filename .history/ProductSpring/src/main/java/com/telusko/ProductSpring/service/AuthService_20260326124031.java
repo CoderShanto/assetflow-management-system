@@ -12,20 +12,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AuthService {
-
-    private static final List<String> ALLOWED_DEPARTMENTS = List.of(
-            "IT",
-            "Management",
-            "HR",
-            "Accounts",
-            "Store",
-            "Operations"
-    );
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -51,8 +41,17 @@ public class AuthService {
             return new AuthResponse(null, "Email already exists", null, null);
         }
 
-        String finalDepartment = request.getDepartment().trim();
+        String finalDepartment = normalizeDepartment(request.getDepartment());
+
         Role selectedRole = request.getRole() != null ? request.getRole() : Role.EMPLOYEE;
+
+        System.out.println("REGISTER DEBUG -> "
+                + "name=" + request.getName()
+                + ", email=" + email
+                + ", password=" + request.getPassword()
+                + ", rawDepartment=" + request.getDepartment()
+                + ", finalDepartment=" + finalDepartment
+                + ", role=" + selectedRole);
 
         User user = new User();
         user.setName(request.getName().trim());
@@ -123,9 +122,19 @@ public class AuthService {
         if (request.getDepartment() == null || request.getDepartment().trim().isEmpty()) {
             throw new RuntimeException("Department is required");
         }
+    }
 
-        if (!ALLOWED_DEPARTMENTS.contains(request.getDepartment().trim())) {
-            throw new RuntimeException("Invalid department selected");
+    private String normalizeDepartment(String department) {
+        String value = department == null ? "" : department.trim();
+
+        if (value.isEmpty()) {
+            return "IT";
         }
+
+        if (value.matches("\\d+")) {
+            return "IT";
+        }
+
+        return value;
     }
 }

@@ -12,20 +12,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AuthService {
-
-    private static final List<String> ALLOWED_DEPARTMENTS = List.of(
-            "IT",
-            "Management",
-            "HR",
-            "Accounts",
-            "Store",
-            "Operations"
-    );
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -47,18 +37,24 @@ public class AuthService {
 
         String email = request.getEmail().trim().toLowerCase();
 
+        System.out.println("REGISTER DEBUG -> "
+                + "name=" + request.getName()
+                + ", email=" + email
+                + ", password=" + request.getPassword()
+                + ", department=" + request.getDepartment()
+                + ", role=" + request.getRole());
+
         if (userRepository.existsByEmail(email)) {
             return new AuthResponse(null, "Email already exists", null, null);
         }
-
-        String finalDepartment = request.getDepartment().trim();
-        Role selectedRole = request.getRole() != null ? request.getRole() : Role.EMPLOYEE;
 
         User user = new User();
         user.setName(request.getName().trim());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setDepartment(finalDepartment);
+        user.setDepartment(request.getDepartment().trim());
+
+        Role selectedRole = request.getRole() != null ? request.getRole() : Role.EMPLOYEE;
         user.setRole(selectedRole);
 
         User savedUser = userRepository.save(user);
@@ -122,10 +118,6 @@ public class AuthService {
 
         if (request.getDepartment() == null || request.getDepartment().trim().isEmpty()) {
             throw new RuntimeException("Department is required");
-        }
-
-        if (!ALLOWED_DEPARTMENTS.contains(request.getDepartment().trim())) {
-            throw new RuntimeException("Invalid department selected");
         }
     }
 }

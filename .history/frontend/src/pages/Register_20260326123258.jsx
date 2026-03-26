@@ -5,15 +5,6 @@ import API from "../api/axios";
 function Register() {
   const navigate = useNavigate();
 
-  const departments = [
-    "IT",
-    "Management",
-    "HR",
-    "Accounts",
-    "Store",
-    "Operations",
-  ];
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,6 +16,15 @@ function Register() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const departments = [
+    "IT",
+    "Management",
+    "HR",
+    "Accounts",
+    "Store",
+    "Operations",
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;

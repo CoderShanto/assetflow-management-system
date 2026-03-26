@@ -1,24 +1,20 @@
 package com.telusko.ProductSpring.dto;
 
-import com.telusko.ProductSpring.enums.Role;
-
 public class RegisterRequest {
 
     private String name;
     private String email;
     private String password;
     private String department;
-    private Role role;
 
     public RegisterRequest() {
     }
 
-    public RegisterRequest(String name, String email, String password, String department, Role role) {
+    public RegisterRequest(String name, String email, String password, String department) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.department = department;
-        this.role = role;
     }
 
     public String getName() {
@@ -51,13 +47,5 @@ public class RegisterRequest {
 
     public void setDepartment(String department) {
         this.department = department;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 }
